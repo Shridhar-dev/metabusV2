@@ -1,0 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.mantine-Menu-body{
+    z-index: 10000000000;
+}
