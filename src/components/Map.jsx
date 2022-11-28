@@ -25,16 +25,18 @@ function Map() {
   const [buses_on_route,setBuses] =  useState([]);
 
   let stateCopy ={};
-
+  let gid;
+  
   useEffect(() => {
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((pos)=>{
+        gid = navigator.geolocation.watchPosition((pos)=>{
           setUserCoords([pos.coords.latitude,pos.coords.longitude])
             setLoading(true)
         });
-      } else {
+    } else {
         alert("Geolocation is not supported by this browser.");
-      }
+    }
+    return () => navigator.geolocation.clearWatch(gid);;
   },[])
     
   async function run(){

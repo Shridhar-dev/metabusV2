@@ -119,14 +119,42 @@ export default function DashboardLayout() {
     });
 
   },[])
-
-  addEventListener('beforeunload', (event) => {
-    event.preventDefault();
-    updateDoc(doc(db, "users",id,"buses",selectedBus.id), {
-      isTracking: false,
-    });
-  },{capture: true});
   
+
+  useEffect(() => {
+    const unloadCallback = (event) => { 
+      event.preventDefault();
+      let data = {
+        fields : {
+          isTracking : {
+            booleanValue : false
+          }
+        }
+      }
+      fetch(
+        `https://firestore.googleapis.com/v1beta1/projects/metabus-101/databases/(default)/documents/buses/${selectedBus.id}?updateMask.fieldPaths=isTracking`
+      ,{
+        method: 'PATCH',
+        body: JSON.stringify(data),
+        keepalive: true,
+       }
+      )
+      fetch(
+        `https://firestore.googleapis.com/v1beta1/projects/metabus-101/databases/(default)/documents/users/${id}/buses/${selectedBus.id}?updateMask.fieldPaths=isTracking`
+      ,{
+        method: 'PATCH',
+        body: JSON.stringify(data),
+        keepalive: true,
+       }
+      )
+     };
+  
+    window.addEventListener("beforeunload", unloadCallback);
+    return () => window.removeEventListener("beforeunload", unloadCallback);
+  }, []);
+
+  
+ 
   async function startTracking() {
     setTrack(!track)
     let lat,lng;
@@ -162,22 +190,20 @@ export default function DashboardLayout() {
       }
       
     });
-    
-    
-    
+ 
   }
-
-  
 
   async function stopTracking(){
     setTrack(!track)
     navigator.geolocation.clearWatch(gid);
-      updateDoc(doc(db, "users",id,"buses",selectedBus.id), {
+
+    updateDoc(doc(db, "users",id,"buses",selectedBus.id), {
         isTracking: false,
-      });
-      updateDoc(doc(db, "buses",selectedBus.id), {
+    });
+    
+    updateDoc(doc(db, "buses",selectedBus.id), {
         isTracking: false,
-      });
+    });
   }
 
   return (
