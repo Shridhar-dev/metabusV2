@@ -130,12 +130,17 @@ export default function DashboardLayout() {
   async function startTracking() {
     setTrack(!track)
     let lat,lng;
+    updateDoc(doc(db, "users",id,"buses",selectedBus.id), {
+      isTracking:true,
+    });
+    updateDoc(doc(db, "buses",selectedBus.id), {
+      isTracking:true,
+    });
     gid = navigator.geolocation.watchPosition((pos)=>{
       lat=pos.coords.latitude;
       lng=pos.coords.longitude;
       setLocation({lat:pos.coords.latitude,long:pos.coords.longitude})
       updateDoc(doc(db, "users",id,"buses",selectedBus.id), {
-        isTracking:true,
         currentLocation: {
             lat: lat,
             long: lng,
@@ -145,7 +150,6 @@ export default function DashboardLayout() {
       
       try {
         updateDoc(doc(db, "buses",selectedBus.id), {
-          isTracking:true,
           currentLocation: {
               lat: lat,
               long: lng,
