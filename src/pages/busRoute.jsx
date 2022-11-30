@@ -10,6 +10,13 @@ import 'leaflet/dist/leaflet.css';
 
 import {MemoizedRouting} from '../components/Routing';
 
+import {
+  AppShell,
+  Aside,
+  MediaQuery,
+  Image,
+  useMantineTheme,
+} from '@mantine/core';
 
 function BusRoute() {
    const [loc,setLoc] =  useState([0,0]);
@@ -18,17 +25,10 @@ function BusRoute() {
    const [map, setMap] = useState(null);
    const [points, setPoints] = useState([])
 
+   const theme = useMantineTheme();
+  const [opened, setOpened] = useState(false);
+
    let { id } = useParams();
-
-
-   /*function setLines(stations){
-    let lines = [];
-        stations.forEach((station,index)=>{
-            lines.push([station.lat,station.long])
-        })
-    
-        return lines;
-   } */
 
   useEffect(() => {
     async function run(){
@@ -51,26 +51,51 @@ function BusRoute() {
 
   return (
     loading &&
-      <div>
-        <MapContainer center={loc} zoom={10} scrollWheelZoom={false} style={{height:"100vh"}} whenCreated={setMap}>
+    <div>
+      <AppShell
+        styles={{
+          main: {
+            padding:0,
+            background: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
+          },
+        }}
+        asideOffsetBreakpoint="sm" 
+        aside={
+          <MediaQuery smallerThan="sm" styles={{ display: 'none' }}>
+            <Aside p="md" hiddenBreakpoint="sm" width={{ sm: 200, lg: 350 }}>
+              <Image
+                radius="md"
+                src={bus.url}
+                alt={`Image of ${bus.image}`}
+              />
+              <h1 className='text-2xl font-semibold my-2'>{bus.name}</h1>
+              <hr/>
+              <h1 className='text-xl my-2'>Routes</h1>
+              {
+                  bus.stations.map((station,index)=>{
+                      return(
+                          <div key={index}> {index+1}. {station.time} {station.timeFormat} - {station.name}</div>
+                      )
+                  })
+              }
+              <hr className='my-5'/>
+              <h1 className='text-sm'>Bus Number Plate: {bus.plateNo}</h1>
+              <h1 className='text-sm'>Driver Phone Number: {bus.phoneNo}</h1>
+              <hr className='my-5'/>
+              <h1 className='text-md my-2'>Reports: {bus.reports}</h1>
+            </Aside>
+          </MediaQuery>
+        }
+    >
+      <MapContainer center={loc} zoom={10} scrollWheelZoom={false} style={{height:"100vh"}} whenCreated={setMap}>
           <MemoizedRouting stations={points}/>   
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           /> 
-        </MapContainer>
-        <div className="bg-white text-black fixed left-5 bottom-5 p-10 z-[400] rounded shadow-md max-w-xs">
-            <h1 className='text-2xl mb-2'>{bus.name}</h1>
-            <h1 className='text-xl mb-2'>Routes</h1>
-            {
-                bus.stations.map((station,index)=>{
-                    return(
-                        <div key={index}> {index+1}. {station.time}</div>
-                    )
-                })
-            }
-        </div>
-      </div>
+      </MapContainer>
+    </AppShell>
+    </div>
   )
 }
 

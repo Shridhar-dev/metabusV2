@@ -1,12 +1,11 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { MapContainer, TileLayer, Marker, Popup, Circle, LayerGroup } from 'react-leaflet'
+import React, { useEffect, useState } from 'react'
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css';
-import { LatLngExpression } from 'leaflet';
-import RadarCircle from './RadarCircle.jsx'
+import {MemoizedRadarCircle} from './RadarCircle.jsx'
 import { Loader } from '@mantine/core';
 // @ts-ignore
 import {MemoizedRouting} from './Routing';
-import { buses, Config, coords } from '../pages/index.jsx';
+import { buses, coords } from '../pages/index.jsx';
 import L from "leaflet";
 import { useAtom } from 'jotai';
 
@@ -53,11 +52,7 @@ function Map() {
         coords:[doc.data().currentLocation.lat,doc.data().currentLocation.long],
         name:doc.data().name,
       }
-      
-     
-      //stateCopy[doc.id] = bus;
       setBuses(current => [...current,bus]);
-      
     }
     });
   }
@@ -109,7 +104,7 @@ function Map() {
         
         {/* 
          // @ts-ignore */}
-        <RadarCircle coords={`${userCoords[0]} ${userCoords[1]}`}/>
+        <MemoizedRadarCircle coords={`${userCoords[0]} ${userCoords[1]}`}/>
          
         <MemoizedRouting stations={[L.latLng(coordsArray[0][0], coordsArray[0][1]),L.latLng(coordsArray[1][0],coordsArray[1][1])]} />
       

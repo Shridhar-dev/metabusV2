@@ -1,5 +1,5 @@
 //@ts-nocheck
-import { AppShell, Navbar, Header, Text, ActionIcon, Modal, TextInput, Button } from '@mantine/core';
+import { AppShell, Navbar, Header, Text, ActionIcon, Modal, TextInput, Button, MediaQuery,  useMantineTheme, Burger } from '@mantine/core';
 import { useEffect, useState } from 'react';
 import { Bus, Plus } from 'tabler-icons-react';
 import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from 'react-leaflet'
@@ -7,27 +7,33 @@ import { MapContainer, Marker, Popup, TileLayer, useMapEvents } from 'react-leaf
 import { addDoc, collection, doc, getDocs, query, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL} from "firebase/storage";
+
 import { authenticate } from '../utils/auth';
 import { useBeforeunload } from 'react-beforeunload';
 
 import { stationIcon } from '../Icons';
 
-
-
 export default function DashboardLayout() {
   const [opened, setOpened] = useState(false);
+  const [openedMenu, setOpenedMenu] = useState(false);
   const [stations,setStations] = useState([]);
-  const [stationName,setStationName] = useState([]);
   const [name, setName] = useState("");
   const [myBuses, setMyBuses] = useState([])
   const [selectedBus, setSelectedBus] = useState({id:1});
   const [id, setId] = useState()
   const [track, setTrack] = useState(false)
-  const [location, setLocation] = useState({})
+  const [location, setLocation] = useState({});
+  const [image, setImage] = useState(null);
+  const [plateNo, setPlateNo] = useState('');
+  const [phoneNo, setPhNo] = useState('');
+
+  const theme = useMantineTheme();
 
   let gid;
   let cleanup = 0;
   
+  const storage = getStorage();
 
 
   const LocationFinder = () => {
@@ -37,7 +43,7 @@ export default function DashboardLayout() {
            fetch(`https://api.openweathermap.org/geo/1.0/reverse?lat=${e.latlng.lat}&lon=${e.latlng.lng}&limit=5&appid=f31aef7d059b3e89ff8c29274d01c1b0`)
               .then((res)=>(res.json())).then((result)=>{         
                 console.log(result)
-                setStations([...stations,{ name:result[0].name,lat : e.latlng.lat,long: e.latlng.lng}])  
+                setStations([...stations,{ name:result[0].name,lat : e.latlng.lat,long: e.latlng.lng, timeFormat:"AM"}])  
             })
         },
     });
@@ -48,58 +54,80 @@ export default function DashboardLayout() {
 
   const handleSubmit = async (e) => {
     
-    e.preventDefault();
-    console.log(id,name,stations)
-    try {
-      let busObj = await addDoc(collection(db, "users",id,"buses"), {
-        name: name,	
-        stations: stations,
-        reports:0,
-        user: id,
-        isTracking:false
-      });
-      
-      
-      await setDoc(doc(db, "buses",busObj.id), {
-        name: name,	
-        stations: stations,
-        reports:0,
-        user: id,
-        isTracking:false
-      });
+    e.preventDefault(); 
+    const storageRef = ref(storage, 'images/' + image.name);
+    const uploadTask = uploadBytesResumable(storageRef, image,{contentType: 'image/jpeg'});
 
-      await setDoc(doc(db, "routes",busObj.id), {
-        start:stations[0],
-        end:stations[stations.length-1],
-        name: name
-      });
-        
-    } catch (err) {
-      console.log(err)
-    }
+    uploadTask.on('state_changed',(snapshot) => {}, 
+      (error) => {
+        switch (error.code) {
+          case 'storage/unauthorized':
+            break;
+          case 'storage/canceled':
+            break;
+          case 'storage/unknown':
+            break;
+        }
+      }, 
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then(async(downloadURL) => {
+          try {
+            let busObj = await addDoc(collection(db, "users",id,"buses"), {
+              name: name,	
+              stations: stations,
+              reports:0,
+              user: id,
+              isTracking:false,
+              url:downloadURL,
+              plateNo:plateNo,
+              phoneNo:phoneNo
+            });
+            
+            
+            await setDoc(doc(db, "buses",busObj.id), {
+              name: name,	
+              stations: stations,
+              reports:0,
+              user: id,
+              isTracking:false,
+              url:downloadURL,
+              plateNo:plateNo,
+              phoneNo:phoneNo
+            });
+      
+            await setDoc(doc(db, "routes",busObj.id), {
+              start:stations[0],
+              end:stations[stations.length-1],
+              name: name,
+              url:downloadURL,
+              plateNo:plateNo,
+              phoneNo:phoneNo
+            });
+              
+          } catch (err) {
+            console.log(err)
+          }
 
-    setOpened(false)
-    run();
+          setOpened(false);
+          setStations([]);
+          run();
+        });
+      }
+    ); 
   }
 
   
 
-  async function run(){
-    
+  async function run(){ 
     const q = query(collection(db, "users",id,"buses"));
     let _myBuses = [];
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
-    
-      
       _myBuses.push({id:doc.id, data:doc.data()})
     })
     setMyBuses(_myBuses)
     cleanup = 1;
   }
-
-
-  
 
   useEffect(() => {
     if(cleanup === 1) return;
@@ -206,11 +234,29 @@ export default function DashboardLayout() {
     });
   }
 
+  function handleContent(e){
+    if(e.target.files[0]){
+      
+      setImage(e.target.files[0])
+    }
+  }
+  function handleTime(e,index){
+    let tempStations = stations;
+    if(e.target.value !== "AM" && e.target.value !== "PM"){
+      tempStations[index].time = e.target.value;
+      setStations(tempStations);
+    }
+    else{
+      tempStations[index].timeFormat = e.target.value;
+      setStations(tempStations);
+    }
+  }
+
   return (
     <AppShell
       padding="md"
       navbar={
-        <Navbar width={{ base: 300 }} height={500} p="xl">
+        <Navbar width={{ base: 300 }} height={500} p="xl" hiddenBreakpoint="sm" hidden={!openedMenu}>
            <Text className='text-lg'>Buses</Text>
          
            {
@@ -234,13 +280,28 @@ export default function DashboardLayout() {
       }
       header={
         <Header height={60} p="xl" className=' flex items-center text-xl font-semibold'>
+            <MediaQuery largerThan="sm" styles={{ display: 'none' }}>
+              <Burger
+                opened={openedMenu}
+                onClick={() => setOpenedMenu((o) => !o)}
+                size="sm"
+                color={theme.colors.gray[6]}
+                mr="xl"
+              />
+            </MediaQuery>
             Dashboard
         </Header>
       }
-      styles={(theme) => ({
-        main: { backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0] },
+      styles={(theme) => {
+     
+        return({
+
+        main: { 
+          backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
+          color: theme.colorScheme === 'dark' ? theme.white : theme.black,
+        },
         
-      })}
+      })}}
     >
        <Modal
         opened={opened}
@@ -248,7 +309,9 @@ export default function DashboardLayout() {
         title="Add a bus"
       >
         <TextInput label="Name of the bus" onChange={(e)=>{setName(e.target.value)}} /> 
-        <div className='relative'>
+        <TextInput label="Driving plate no." onChange={(e)=>{setPlateNo(e.target.value)}} /> 
+        <TextInput label="Your phone number" onChange={(e)=>{setPhNo(e.target.value)}} /> 
+        <div className='relative mt-5'>
           <MapContainer center={[10,10]} zoom={10} scrollWheelZoom={false} style={{height:"60vh"}}>
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -266,25 +329,42 @@ export default function DashboardLayout() {
               }
                            
               </MapContainer>
-              <div>
+              
+              <input type="file"  onChange={handleContent} />
+              <ol>
                 Stations:
                   {
                     stations?.map((station,index)=>(
-                      <div key={index}>
-                        {station.name}
-                      </div>
+                      <li key={index} className="my-2">
+                        {index+1}. {station.name}
+                        <input type="time" className='p-0 ml-5' id="stationTiming" name="stationTiming" onChange={(e)=>handleTime(e,index)} required/>
+                        <input type="radio" className='ml-2' id="AM" name={"time_format_"+index} onChange={(e)=>handleTime(e,index)} value="AM"/>
+                        <label for="AM">AM</label>
+                        <input type="radio" id="PM" name={"time_format_"+index} onChange={(e)=>handleTime(e,index)} value="PM"/>
+                        <label for="css">PM</label>            
+                      </li>
                     ))
                   }
-              </div>
+              </ol>
+
         </div>
         <Button style={{background:'black'}} onClick={handleSubmit}>
           Submit
         </Button>
-      </Modal>   
+      </Modal> 
+      {  
+      selectedBus.id !== 1 &&
       <div className='flex items-center justify-center flex-col text-2xl h-screen'>
         Your Bus id: {selectedBus.id}
         <button className='mt-5 bg-blue-700 text-white p-3 rounded' onClick={track ? stopTracking : startTracking}>{track?"Stop":"Start"} Tracking!</button>
       </div>
+      }
+      {  
+      selectedBus.id === 1 &&
+      <div className='flex items-center justify-center flex-col text-2xl h-screen'>
+        Choose one of your buses ✨
+      </div>
+      }
     </AppShell>
   );
 }

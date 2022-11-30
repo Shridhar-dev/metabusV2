@@ -2,9 +2,9 @@
 import  Radar  from 'leaflet-radar';
 import { useMap } from "react-leaflet";    
     // Usethe constructor...
-import { ReactNode } from 'react';
+import { ReactNode, memo } from 'react';
 
-const RadarCircle = (props) => {
+export const RadarCircle = (props) => {
     const map = useMap();
 /*
     let radar = new Radar({
@@ -27,15 +27,16 @@ const RadarCircle = (props) => {
             opacity: 1,
             fillColor: "black",
             fillOpacity: 0.05,
-            pmIgnore: true
+            pmIgnore:false
         },
         step:1  //The refresh distance of each frame of radar scanning animation. The unit is meter.
     });
-    */
-    //radar.addTo(map);
+    
+    radar.addTo(map);*/
         
       
     return null;
 }
       
-export default RadarCircle;
+
+export const MemoizedRadarCircle = memo(RadarCircle);
