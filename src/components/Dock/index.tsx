@@ -37,8 +37,9 @@ function Dock() {
             animate(".item", { y: "98%" }, { type: "spring" });
           }
         }}
-        children={<div className=" bg-red-700 m-5 h-[400vh] "></div>}
-      />
+      >
+        <div className=" bg-red-700 m-5 h-[400vh] "></div>
+      </motion.div>
     </motion.div>
   ) : null;
 }

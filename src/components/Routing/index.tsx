@@ -34,14 +34,13 @@ export const Routing = ({
 }: {
   stations: Array<LatLngTuple>;
 }): any => {
-  if (!stations[0][0]) return;
   const [bus, setBuses] = useAtom(buses);
   const map = useMap();
 
-  console.log(stations);
   //@ts-ignore
   useEffect(() => {
     if (!map) return;
+    if (!stations[0][0]) return;
 
     const routingControl = L.Routing.control({
       waypoints: stations,

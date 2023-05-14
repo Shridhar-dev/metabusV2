@@ -10,12 +10,6 @@ function DashboardLayout({ children }: { children: ReactNode }) {
       padding="md"
       navbar={<NavbarComponent />}
       header={<HeaderComponent />}
-      children={
-        <>
-          <ModalComponent />
-          {children}
-        </>
-      }
       styles={(theme) => {
         return {
           main: {
@@ -27,7 +21,10 @@ function DashboardLayout({ children }: { children: ReactNode }) {
           },
         };
       }}
-    />
+    >
+      <ModalComponent />
+      {children}
+    </AppShell>
   );
 }
 
