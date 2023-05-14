@@ -1,0 +1,49 @@
+import React from "react";
+import { Paper, Button } from "@mantine/core";
+import { BrandGoogle } from "tabler-icons-react";
+import { getAuth, onAuthStateChanged, signInWithPopup } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { db, provider } from "@/firebase";
+import { useRouter } from "next/router";
+
+export function AuthenticationForm() {
+  const router = useRouter();
+
+  async function authenticator() {
+    const auth = getAuth();
+    onAuthStateChanged(auth, async (currUser) => {
+      if (currUser) {
+        return router.push("/tracking");
+      } else {
+        const result = await signInWithPopup(auth, provider);
+        await setDoc(doc(db, "users", result.user.uid), {
+          user: result.user.uid,
+        });
+        return router.push("/tracking");
+      }
+    });
+  }
+
+  return (
+    <Paper
+      className=" w-4/5 md:w-1/2 py-10 flex flex-col justify-center items-center border-2 border-black"
+      radius="md"
+      p="xl"
+      withBorder
+    >
+      <h1 className="text-center font-semibold text-2xl">Welcome to Metabus</h1>
+      <h2 className="text-center my-2 text-gray-500 text-sm">
+        Signing up takes less than a minute, just link your existing google
+        account!
+      </h2>
+      <Button
+        leftIcon={<BrandGoogle />}
+        variant="white"
+        className="border-black mx-auto text-center text-black my-5"
+        onClick={authenticator}
+      >
+        Connect to Google
+      </Button>
+    </Paper>
+  );
+}
