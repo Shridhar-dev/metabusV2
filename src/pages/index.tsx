@@ -8,9 +8,7 @@ import { Header, Map, Dock } from "@/components";
 
 export default function Home() {
   return (
-    <div className="h-screen overflow-hidden">
-      <Header />
-      <Map />
+    <div className="h-screen overflow-hidden relative">
       <Dock />
     </div>
   );
