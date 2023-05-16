@@ -38,7 +38,7 @@ function Dock() {
           dragControls={dragControls}
           onDragEnd={(event, info) => {
             console.log(info);
-            if (info.point.y < 200) {
+            if (info.point.y < 50) {
               animate(".item", { y: "0%" }, { type: "spring" });
             } else {
               setDrag("y");
