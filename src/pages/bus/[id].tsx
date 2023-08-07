@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/router";
 
 import { db } from "../../firebase";
@@ -20,8 +20,8 @@ import {
   Image,
   useMantineTheme,
 } from "@mantine/core";
-import { MemoizedRouting, MapContainer, TileLayer } from "@/components";
 import { Station } from "@/components/types";
+import dynamic from "next/dynamic";
 
 export async function getStaticPaths() {
   const paths: any = [];
@@ -31,6 +31,12 @@ export async function getStaticPaths() {
 export async function getStaticProps({ params }: { params: { id: string } }) {
   return { props: { id: params.id } };
 }
+
+
+const StaticMap = dynamic(() => import("react-leaflet").then((module) => ({ default: module.MapContainer })), { ssr:false })
+const MemoizedRouting = dynamic(() => import("../../components/Routing").then((module) => ({ default: module.MemoizedRouting })), { ssr:false })
+const TileLayer = dynamic(() => import("react-leaflet").then((module) => ({ default: module.TileLayer })), { ssr:false })
+
 
 function BusRoute({ id }: { id: string }) {
   const [loc, setLoc] = useState<LatLngExpression>([0, 0]);
@@ -102,7 +108,7 @@ function BusRoute({ id }: { id: string }) {
             </MediaQuery>
           }
         >
-          <MapContainer
+          <StaticMap
             center={loc}
             zoom={10}
             scrollWheelZoom={false}
@@ -111,11 +117,12 @@ function BusRoute({ id }: { id: string }) {
             <Suspense fallback={<div>Loading...</div>}>
               <MemoizedRouting stations={points} />
               <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
             </Suspense>
-          </MapContainer>
+          </StaticMap>
+          
         </AppShell>
       </div>
     )

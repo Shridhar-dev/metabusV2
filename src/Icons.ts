@@ -1,16 +1,17 @@
+
 import L from "leaflet";
 
 export const stationIcon = new L.Icon({
-    iconUrl: 'https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/twitter/322/fuel-pump_26fd.png',
-    iconRetinaUrl: 'https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/twitter/322/fuel-pump_26fd.png',
+    iconUrl: 'https://img.icons8.com/?size=512&id=DZQwIozyKLY8&format=png',
+    iconRetinaUrl: 'https://img.icons8.com/?size=512&id=DZQwIozyKLY8&format=png',
     popupAnchor:  [-0, -0],
     iconSize: [32,45],     
 });
 
 export const busIcon = new L.Icon({
-    iconUrl: 'https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/microsoft/310/bus_1f68c.png',
-    iconRetinaUrl: 'https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/microsoft/310/bus_1f68c.png',
+    iconUrl: 'https://img.icons8.com/?size=512&id=UGcmWedGa4pu&format=png',
+    iconRetinaUrl: 'https://img.icons8.com/?size=512&id=UGcmWedGa4pu&format=png',
     popupAnchor:  [-0, -0],
-    iconSize: [32,45],     
+    iconSize: [40,45],     
 });
 

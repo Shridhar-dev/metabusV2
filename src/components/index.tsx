@@ -1,10 +1,12 @@
 import { lazy } from "react";
+import dynamic from "next/dynamic";
 
 export { Dock } from "./Dock";
 export { Header } from "./Header";
 export { Map } from "./Map";
 export { SearchBar } from "./SearchBar";
 export { SocialButton } from "./SocialButton";
+
 
 const MapContainer = lazy(() =>
   import("react-leaflet").then((module) => ({ default: module.MapContainer }))
@@ -19,9 +21,8 @@ const Popup = lazy(() =>
   import("react-leaflet").then((module) => ({ default: module.Popup }))
 );
 
-const MemoizedRouting = lazy(() =>
-  import("./Routing").then((module) => ({ default: module.MemoizedRouting }))
-);
+
+const MemoizedRouting = dynamic(() => import("./Routing").then((module) => ({ default: module.MemoizedRouting })), { ssr:false })
 
 const MemoizedRadarCircle = lazy(() =>
   import("./RadarCircle").then((module) => ({ default: module.RadarCircle }))

@@ -1,3 +1,5 @@
+'use-client'
+
 import React, { useEffect, useState, Suspense, lazy } from "react";
 
 import "leaflet/dist/leaflet.css";
@@ -21,36 +23,46 @@ import FlipMove from "react-flip-move";
 import Link from "next/link";
 import { bus } from "../types.js";
 
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  MemoizedRouting,
-  MemoizedRadarCircle,
-} from "..";
+
+
+import dynamic from "next/dynamic";
+
+
+
+const MapContainer = dynamic(() => import("react-leaflet").then((module) => ({ default: module.MapContainer })), { ssr:false })
+const MemoizedRouting = dynamic(() => import("../Routing").then((module) => ({ default: module.MemoizedRouting })), { ssr:false })
+const TileLayer = dynamic(() => import("react-leaflet").then((module) => ({ default: module.TileLayer })), { ssr:false })
+const Marker = dynamic(() => import("react-leaflet").then((module) => ({ default: module.Marker })), { ssr:false })
+const Popup = dynamic(() => import("react-leaflet").then((module) => ({ default: module.Popup })), { ssr:false })
+const MemoizedRadarCircle = dynamic(() => import("../RadarCircle").then((module) => ({ default: module.RadarCircle })), { ssr:false })
+const LocationFinder = dynamic(() => import("../LocationFinder").then((module) => ({ default: module.LocationFinder })), { ssr:false })
+
+
 
 function Map() {
   const [userCoords, setUserCoords] = useState<LatLngTuple>([0, 0]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [busIcon, setBusIcon] = useState<any>(null);
   const [coordsArray, setCoordsArray] = useAtom<number[][]>(coords);
   const [buses_on_route, setBuses] = useState<bus[]>([]);
 
   let gid: number;
 
   useEffect(() => {
-    if (navigator.geolocation) {
-      gid = navigator.geolocation.watchPosition((pos) => {
+    /*if (navigator.geolocation) {
+      navigator.geolocation.watchPosition((pos) => {
         setUserCoords([pos.coords.latitude, pos.coords.longitude]);
         setLoading(true);
       });
     } else {
       alert("Geolocation is not supported by this browser.");
     }
-    return () => navigator.geolocation.clearWatch(gid);
+    return () => navigator.geolocation.clearWatch(gid);*/
   }, []);
 
   async function run() {
+    const busIconModule = (await import('../../Icons')).busIcon;
+    setBusIcon(busIconModule)
     const q = query(collection(db, "buses"), where("isTracking", "==", true));
     const querySnapshot = await getDocs(q);
     setBuses([]);
@@ -103,11 +115,11 @@ function Map() {
           <Popup>Your location</Popup>
         </Marker>
 
-        <FlipMove enterAnimation="fade">
+        
           {buses_on_route?.map((bus, i) => {
             return (
               <div key={i}>
-                <Marker position={bus.coords} key={i}>
+                <Marker position={bus.coords} icon={busIcon}  key={i}>
                   <Popup>
                     <Link href={`/bus/${bus.id}`}>{bus.name}</Link>
                     <br />
@@ -116,7 +128,7 @@ function Map() {
               </div>
             );
           })}
-        </FlipMove>
+      
       </Suspense>
     </MapContainer>
   ) : (
