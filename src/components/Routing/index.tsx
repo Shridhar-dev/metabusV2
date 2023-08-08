@@ -25,8 +25,8 @@ let busdata = [
 
 L.Marker.prototype.options.icon = L.icon({
   iconUrl:
-    "https://cdn2.iconfinder.com/data/icons/game-center-mixed-icons/512/pin.png",
-  iconSize: [40, 45],
+    "https://img.icons8.com/?size=512&id=DZQwIozyKLY8&format=png",
+  iconSize: [40, 40],
 });
 
 export const Routing = ({

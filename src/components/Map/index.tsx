@@ -37,12 +37,11 @@ const Popup = dynamic(() => import("react-leaflet").then((module) => ({ default:
 const MemoizedRadarCircle = dynamic(() => import("../RadarCircle").then((module) => ({ default: module.RadarCircle })), { ssr:false })
 const LocationFinder = dynamic(() => import("../LocationFinder").then((module) => ({ default: module.LocationFinder })), { ssr:false })
 
-
-
 function Map() {
-  const [userCoords, setUserCoords] = useState<LatLngTuple>([0, 0]);
-  const [loading, setLoading] = useState(true);
+  const [userCoords, setUserCoords] = useState<LatLngTuple>([15.474175720019007, 73.82130012555383]);
+  const [loading, setLoading] = useState(false);
   const [busIcon, setBusIcon] = useState<any>(null);
+  const [userIcon, setUserIcon] = useState<any>(null);
   const [coordsArray, setCoordsArray] = useAtom<number[][]>(coords);
   const [buses_on_route, setBuses] = useState<bus[]>([]);
 
@@ -62,7 +61,11 @@ function Map() {
 
   async function run() {
     const busIconModule = (await import('../../Icons')).busIcon;
+    const userIconModule = (await import('../../Icons')).userIcon;
     setBusIcon(busIconModule)
+   
+    setUserIcon(userIconModule)
+    
     const q = query(collection(db, "buses"), where("isTracking", "==", true));
     const querySnapshot = await getDocs(q);
     setBuses([]);
@@ -79,9 +82,11 @@ function Map() {
         setBuses((current: bus[]) => [...current, bus]);
       }
     });
+    setLoading(true)
   }
 
   useEffect(() => {
+    
     run();
     const unsubscribe = onSnapshot(
       query(collection(db, "buses")),
@@ -95,7 +100,7 @@ function Map() {
     <MapContainer
       zoomControl={false}
       center={userCoords}
-      zoom={18}
+      zoom={10}
       style={{ height: "100vh", zIndex: "100" }}
     >
       <Suspense fallback={<div>Loading ... </div>}>
@@ -111,10 +116,11 @@ function Map() {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <Marker position={userCoords}>
-          <Popup>Your location</Popup>
-        </Marker>
-
+        
+          <Marker position={userCoords} icon={userIcon} key={"user-marker"}>
+            <Popup>Your location</Popup>
+          </Marker>
+        
         
           {buses_on_route?.map((bus, i) => {
             return (

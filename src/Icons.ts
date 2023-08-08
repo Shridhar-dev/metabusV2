@@ -15,3 +15,10 @@ export const busIcon = new L.Icon({
     iconSize: [40,45],     
 });
 
+export const userIcon = new L.Icon({
+    iconUrl: 'https://img.icons8.com/?size=512&id=Sk4BAluINF9y&format=png',
+    iconRetinaUrl: 'https://img.icons8.com/?size=512&id=Sk4BAluINF9y&format=png',
+    popupAnchor:  [-0, -0],
+    iconSize: [40,42],     
+});
+

@@ -33,6 +33,7 @@
     "react-beforeunload": "^2.5.3",
     "react-dom": "18.2.0",
     "react-flip-move": "^3.0.4",
+    "react-icons": "^4.10.1",
     "react-leaflet": "^4.2.1",
     "tabler-icons-react": "^1.48.0",
     "typescript": "5.0.4",

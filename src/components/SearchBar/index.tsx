@@ -15,6 +15,8 @@ import {
 } from "firebase/firestore";
 import { db } from "../../firebase";
 import { Route } from "../types";
+import { FaRoute } from "react-icons/fa"
+import { MdGpsFixed } from "react-icons/md"
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -47,11 +49,15 @@ function SearchBar() {
       className="w-1/2 md:w-1/3 md:px-0 h-screen pt-5"
       style={{ zIndex: "10000" }}
     >
-      <Accordion style={{ pointerEvents: "all", background: "white" }}>
-        <Accordion.Item label="Routes">
+      <Accordion icon={<FaRoute className="text-xl"/>} className="rounded-lg overflow-hidden pl-5" style={{ pointerEvents: "all", background: "white" }}>
+        
+        <Accordion.Item 
+          label={
+            <p className="flex items-center  text-xl font-semibold">Routes</p>
+          }>
           {routes.map((route: Route, i) => {
             return (
-              <li
+              <div
                 key={i}
                 onClick={() => {
                   setCoords([
@@ -59,9 +65,10 @@ function SearchBar() {
                     [route.end.lat, route.end.long],
                   ]);
                 }}
+                className="flex items-center gap-2 py-2 hover:bg-gray-100 hover:bg-opacity-20 cursor-pointer"
               >
-                {route.start.name} - {route.end.name}
-              </li>
+                <MdGpsFixed /> {route.start.name} - {route.end.name}
+              </div>
             );
           })}
         </Accordion.Item>

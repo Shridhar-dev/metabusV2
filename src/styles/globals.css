@@ -12,3 +12,7 @@ body {
 .mantine-Menu-body{
     z-index: 10000000000;
 }
+
+.leaflet-routing-container-hide{
+    display: none;
+}
