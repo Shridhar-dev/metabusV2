@@ -10,6 +10,8 @@ function DashboardLayout({ children }: { children: ReactNode }) {
       padding="md"
       navbar={<NavbarComponent />}
       header={<HeaderComponent />}
+      navbarOffsetBreakpoint="sm"
+
       styles={(theme) => {
         return {
           main: {

@@ -49,28 +49,29 @@ function SearchBar() {
       className="w-1/2 md:w-1/3 md:px-0 h-screen pt-5"
       style={{ zIndex: "10000" }}
     >
-      <Accordion icon={<FaRoute className="text-xl"/>} className="rounded-lg overflow-hidden pl-5" style={{ pointerEvents: "all", background: "white" }}>
-        
-        <Accordion.Item 
-          label={
+      <Accordion variant="contained" className="rounded-xl overflow-hidden">
+        <Accordion.Item value="routes">
+          <Accordion.Control icon={<FaRoute className="text-xl"/> } className="rounded-xl overflow-hidden pl-5" style={{ pointerEvents: "all", background: "white" }}>
             <p className="flex items-center  text-xl font-semibold">Routes</p>
-          }>
-          {routes.map((route: Route, i) => {
-            return (
-              <div
-                key={i}
-                onClick={() => {
-                  setCoords([
-                    [route.start.lat, route.start.long],
-                    [route.end.lat, route.end.long],
-                  ]);
-                }}
-                className="flex items-center gap-2 py-2 hover:bg-gray-100 hover:bg-opacity-20 cursor-pointer"
-              >
-                <MdGpsFixed /> {route.start.name} - {route.end.name}
-              </div>
-            );
-          })}
+          </Accordion.Control>
+          <Accordion.Panel>
+            {routes.map((route: Route, i) => {
+              return (
+                <div
+                  key={i}
+                  onClick={() => {
+                    setCoords([
+                      [route.start.lat, route.start.long],
+                      [route.end.lat, route.end.long],
+                    ]);
+                  }}
+                  className="flex items-center gap-2 py-2 hover:bg-gray-100 hover:bg-opacity-20 cursor-pointer"
+                >
+                  <MdGpsFixed /> {route.start.name} - {route.end.name}
+                </div>
+              );
+            })}
+          </Accordion.Panel>
         </Accordion.Item>
       </Accordion>
     </div>

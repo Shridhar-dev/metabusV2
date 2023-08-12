@@ -30,27 +30,28 @@ function Header() {
   return (
     <div className="w-full fixed flex justify-between pointer-events-none  px-5  h-screen  z-[10000]">
       <SearchBar />
-      <Menu
-        className="p-5 self-end md:self-start"
-        classNames={classes}
-        position="left"
-        control={
+      <Menu position="left-end">
+
+        <Menu.Target>
           <Avatar
             radius="xl"
             src={userImage}
+            className="z-[10000000000] pointer-events-auto cursor-pointer mt-5"
             sx={{
               "&:hover": {},
             }}
           />
-        }
-      >
-        <Menu.Label>Application</Menu.Label>
-        <Link href="/tracking">
-          <Menu.Item icon={<Settings size={14} />} disabled={userImage === ""}>
-            Dashboard
-          </Menu.Item>
-        </Link>
+        </Menu.Target>
+          <Menu.Dropdown className="mt-5 pointer-events-auto">
+            <Menu.Label>Application</Menu.Label>
+            <Link href="/tracking">
+              <Menu.Item icon={<Settings size={14} />} disabled={userImage === ""}>
+                Dashboard
+              </Menu.Item>
+            </Link>
+          </Menu.Dropdown>
       </Menu>
+    
     </div>
   );
 }

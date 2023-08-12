@@ -4,7 +4,10 @@ export type bus = {
     name:string,
     coords:LatLngExpression,
     id?:string,
-    data?:{name:string}
+    data?:{
+        name:string,
+        url?:string
+    }
 }
 
 export type Station = {

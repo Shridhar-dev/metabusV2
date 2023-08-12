@@ -25,6 +25,7 @@ import {
   trackAtom,
 } from "../state";
 import DashboardLayout from "@/components/DashboardLayout";
+import Image from "next/image";
 
 export default function Dashboard() {
   const [openedMenu, setOpenedMenu] = useAtom(openedMenuAtom);
@@ -149,14 +150,31 @@ export default function Dashboard() {
   return (
     <DashboardLayout>
       {selectedBus.id !== 1 && (
-        <div className="flex items-center justify-center flex-col text-2xl h-screen">
-          Your Bus id: {selectedBus.id}
-          <button
-            className="mt-5 bg-blue-700 text-white p-3 rounded"
-            onClick={track ? stopTracking : startTracking}
-          >
-            {track ? "Stop" : "Start"} Tracking!
-          </button>
+        <div className="grid grid-flow-row grid-cols-5 gap-5 text-2xl h-screen relative">
+          <div className="col-span-5 md:col-span-2">
+            <Image 
+                  loader={({src})=>src}
+                  src={selectedBus.data?.url || "https://images.pexels.com/photos/385998/pexels-photo-385998.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"}
+                  alt="Bus Image"
+                  width={400}
+                  height={400}
+                  className="rounded-lg object-contain mb-2"
+            />
+            <p className="font-semibold text-3xl">{selectedBus.data?.name}</p>
+            <p className="font-semibold text-sm text-gray-500 mt-2">{selectedBus.id}</p>
+          </div>
+          <div className="col-span-5 md:col-span-3 shadow-sm">
+            <div className="bg-white p-10 rounded-md">
+
+            </div>
+          </div>
+            <button
+              className="mt-5 bg-blue-700 text-white p-3 rounded fixed bottom-5 w-1/2 self-center justify-self-center"
+              onClick={track ? stopTracking : startTracking}
+            >
+              {track ? "Stop" : "Start"} Tracking!
+            </button>
+        
         </div>
       )}
       {selectedBus.id === 1 && (
